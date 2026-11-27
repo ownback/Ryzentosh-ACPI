@@ -1,6 +1,6 @@
 # Ryzentosh-ACPI for humans
 
-ACPI tables (SSDTs) for the ASUS ROG STRIX B650E-I, one per purpose. OpenCore loads them from `EFI/OC/ACPI`; they are macOS-only (`_OSI ("Darwin")`), so Windows and Linux on the same machine see the firmware's tables unchanged.
+ACPI tables (SSDTs) for the ASUS ROG STRIX B650E-I, one per purpose. OpenCore loads them from `EFI/OC/ACPI`; they are macOS-only by design (`_OSI ("Darwin")`), so Windows and Linux on the same machine are expected to see the firmware's tables unchanged (not yet tested on Linux).
 
 | Table | Purpose | Justification |
 |---|---|---|

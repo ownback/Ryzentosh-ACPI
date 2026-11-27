@@ -16,13 +16,13 @@ The table has three parts. They are one table because they were always one chang
 
 **Firmware:** `\_SB.PCI0.SBRG.EC0` (DSDT, `Scope (_SB.PCI0.SBRG)`) is `PNP0C09`, I/O ports `0x62`/`0x66`, `_GPE 0x04`, with `_REG` and the `_Qxx` query methods that forward to `\RMTW.AMWN` (ASUS WMI notifications). It has **no `_STA`**, so every OS treats it as present.
 
-**macOS consumer:** `AppleACPIEC` binds `PNP0C09`. The EC here speaks an ASUS-specific protocol (its queries feed ASUS WMI), so macOS's EC driver must not drive it. Hiding it follows Dortania's method and is what the live system has run since 2026-11-18; no failure from letting `AppleACPIEC` bind it has been recorded here, so the exact failure is not independently reproduced. So `EC0` gets `_STA`: `Return (Zero)` under Darwin, `Return (0x0F)` otherwise.
+**macOS consumer:** `AppleACPIEC` binds `PNP0C09` (its `Info.plist` match, read on this system). The EC here speaks an ASUS-specific protocol (its queries feed ASUS WMI), so macOS's EC driver must not drive it. Hiding it follows Dortania's method and is what the live system has run since 2026-11-18; no failure from letting `AppleACPIEC` bind it has been recorded here, so the exact failure is not independently reproduced. So `EC0` gets `_STA`: `Return (Zero)` under Darwin, `Return (0x0F)` otherwise.
 
-**Other OS:** unchanged (`0x0F`, the same as an absent `_STA`).
+**Other OS:** expected unchanged (`0x0F`, the same as an absent `_STA`), provided that OS does not answer `_OSI ("Darwin")` true. Not tested, see below.
 
 ## 2. Fake `EC` device
 
-**macOS consumer:** since Catalina, `AppleUSBHostPort` power properties are only applied when an `EC` device exists in the ACPI plane (Dortania documents this; Apple's Macs have it). **Open:** this has not been confirmed from Apple's binaries (REA follow-up).
+**macOS consumer:** Dortania's EC page says macOS (since Catalina) wants a device named `EC` and names `AppleBusPowerController` as the component that looks for it; Apple's Macs have one. **Open:** not confirmed from Apple's binaries. On this system `AppleBusPowerController` is matched on `IOResources`/`IORTC`, so the actual consumer of the `EC` name is unidentified (REA follow-up). The `EC` device is kept because it is part of the booting table.
 
 The table adds `Device (EC)` under `\_SB.PCI0.SBRG` with `_HID "ACID0001"` (matches no driver: nothing is behind it) and `_STA` = `0x0F` under Darwin, `Zero` otherwise. Live ioreg (internal ESP boot, 2026-11-27) shows `EC` present as an `IOACPIPlatformDevice`, and `EC0` absent.
 
@@ -37,11 +37,11 @@ The table adds `Device (EC)` under `\_SB.PCI0.SBRG` with `_HID "ACID0001"` (matc
 | `kUSBWakePowerSupply` | `0x13EC` (5100) |
 | `kUSBWakePortCurrentLimit` | `0x0834` (2100) |
 
-The values are those of Apple's desktop Macs (per the Vermilion/Dortania method; Dortania says that without them macOS's laptop defaults cut USB power during sleep, not reproduced here). The live IORegistry shows `kUSBSleepPowerSupply = 5100` and `kUSBWakePortCurrentLimit = 2100`. `_STA` is Darwin-only as above. No table of the BIOS 4005 dump defines a `USBX` device (searched DSDT and all 15 SSDTs).
+The values are those of Apple's desktop Macs (per the Vermilion/Dortania method; Dortania only says USBX supplies the USB power properties, and the effect of omitting them is not reproduced here). The live IORegistry shows `kUSBSleepPowerSupply = 5100` and `kUSBWakePortCurrentLimit = 2100`. `_STA` is Darwin-only as above. No table of the BIOS 4005 dump defines a `USBX` device (searched DSDT and all 15 SSDTs).
 
 ## Darwin-only scoping
 
-All three `_STA` methods test `_OSI ("Darwin")` and invert for the real EC. The only change another OS can see is that `EC0` still has an `_STA`, returning `0x0F`, i.e. what an absent `_STA` already meant.
+All three `_STA` methods test `_OSI ("Darwin")` and invert for the real EC. For an OS whose `_OSI ("Darwin")` is false, the only visible difference should be that `EC0` has an `_STA` returning `0x0F`, i.e. what an absent `_STA` already meant. This is expected, not verified: the Linux check in the test section has not been run.
 
 ## How to test
 

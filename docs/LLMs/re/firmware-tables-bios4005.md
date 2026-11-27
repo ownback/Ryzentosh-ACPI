@@ -4,7 +4,7 @@ Evidence behind the two live SSDTs. **Findings only**: names, paths, offsets and
 
 ## Source of the dump
 
-- Dump taken 2026-11-19 from this machine, BIOS `4005` (file `bios-version`), 32 files: `DSDT`, `SSDT1`..`SSDT15`, `APIC` (MADT), `FACP`, `FACS`, `FIDT`, `FPDT`, `HPET`, `IVRS`, `MCFG`, `BGRT`, `TPM2`, `VFCT`, `WDRT`, `WPBT`, `WSMT`. Disassembled for this issue with iasl 20260930 (`iasl -e SSDT*.aml -d DSDT.aml`).
+- Dump taken 2026-11-19 from this machine, BIOS `4005` (file `bios-version`), 30 tables (plus two older `.dsl` files in the folder): `DSDT`, `SSDT1`..`SSDT15`, `APIC` (MADT), `FACP`, `FACS`, `FIDT`, `FPDT`, `HPET`, `IVRS`, `MCFG`, `BGRT`, `TPM2`, `VFCT`, `WDRT`, `WPBT`, `WSMT`. Disassembled for this issue with iasl 20260930 (`iasl -e SSDT*.aml -d DSDT.aml`).
 - The EC0/DSDT and MADT facts below were taken from that dump. The macOS-side facts were read live from the running system (`ioreg`, `sysctl`) on 2026-11-27 while booted from the internal ESP (`booted_from: internal`, no flags, OpenCore REL-108).
 - Not done here: a fresh dump from the current boot (macOS doesn't expose raw tables; OpenCore's SysReport isn't enabled) and an Omarchy re-dump via the bridge. The BIOS version is unchanged since 2026-11-19, so the dump is assumed current. If the BIOS is ever updated, repeat this document.
 
@@ -40,8 +40,9 @@ The source's `ProcessorId` list equals the enabled MADT IDs in table order (chec
 | Real EC | DSDT `Scope (_SB.PCI0.SBRG)`, `Device (EC0)` (lines 6226–6288 of the disassembly) | `_HID PNP0C09`, IO `0x62`, `0x66`, `_GPE 0x04`, `_REG`, `_Qxx` → `\RMTW.AMWN (0xA00…)` |
 | `_STA` | within that device | none (the only `_STA` after it, at line 6831, belongs to another device) |
 | `SBRG` | DSDT `Device (SBRG)` under `\_SB.PCI0` (line 3597) | exists, so the SSDT's `External` is valid |
-| An `EC` device | all 17 tables | none |
-| A `USBX` device | all 17 tables | none |
+| An `EC` device | all 16 tables with AML bodies (DSDT + 15 SSDTs) | none |
+| A `USBX` device | same 16 tables | none |
+| Other `EC0` scopes | DSDT has a second `Scope (_SB.PCI0.SBRG.EC0)` (about 2200 lines, from line 9679); SSDT `CPMCMN` references `EC0.CCDP` | neither defines `_STA` (checked) |
 
 ## Live macOS-side facts (2026-11-27, internal ESP boot)
 

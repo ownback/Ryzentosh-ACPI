@@ -4,8 +4,8 @@ Rule (issue #1): **no table is added without evidence.** Each item lists the evi
 
 ## 1. Sleep/wake sources: `SSDT-PRW-B650EI` (name provisional)
 
-- **Purpose:** make macOS wake from the right devices and not from the wrong ones (real Macs: `_PRW` on `XHC`, the power button and LAN only, and `GPRW`/`UPRW`-style methods that return `0` for the rest).
-- **Lead:** the DSDT has 74 `_PRW` methods (disassembly count), for example under `GPP3`/`D003`; the full per-device list is not inventoried yet (that is evidence item 0).
+- **Purpose:** make macOS wake from the right devices and not from the wrong ones (the real-Mac wake-source set is **to be established from Apple's code** (item 3); `GPRW`/`UPRW` are PC-firmware/Dortania names, not Apple's).
+- **Lead:** the DSDT has 74 `_PRW` objects (73 `Name`, 1 `Method`), for example under `GPP3`/`D003`; the full per-device list is not inventoried yet (that is evidence item 0).
 - **Evidence needed before any table:**
   0. A per-device `_PRW` inventory from the DSDT (device path, GPE or event bit, sleep state).
   1. Which wake sources fire in macOS today: `pmset -g log` / `pmset -g assertions` over sleep/wake ×3, and the `IOPMrootDomain` wake-reason strings after each wake.
@@ -17,7 +17,7 @@ Rule (issue #1): **no table is added without evidence.** Each item lists the evi
 ## 2. dGPU power-down: `SSDT-GPU-B650EI` (name provisional)
 
 - **Purpose:** ADR-0005 option B/GPU M1.5: put the RX 7900 XTX into D3 / power it off when headless, with the AML power-resource methods a real Mac with a discrete GPU has (`_PS0`/`_PS3`, `_ON`/`_OFF` on a `PowerResource`, `_PR0`).
-- **Leads:** the dGPU's firmware path is **not yet identified** (it sits behind a `GPPx` root port; match it against `lspci` from bridge task 0001). Note `\_SB.PCI0.GP17` (`_ADR 0x00080001`, child `VGA`) is the Raphael iGPU's bridge (the iGPU is disabled in the BIOS today), not the dGPU. The DSDT has several `_PS0`/`_PS3` pairs (from line 16230 of the disassembly, owners not yet identified).
+- **Leads:** the dGPU's firmware path is **not yet identified** (it sits behind a `GPPx` root port; match it against `lspci` from bridge task 0001). Note `\_SB.PCI0.GP17` (`_ADR 0x00080001`, child `VGA`) is the Raphael iGPU's bridge (the iGPU is disabled in the BIOS today), not the dGPU. The 13 `_PS0`/`_PS3` pairs in the DSDT belong to the FCH UARTs (`FUR0`–`FUR4`) and I2C/I3C controllers (`I2CA`–`I2CD`, `I3CA`–`I3CD`), so they are not dGPU leads.
 - **Evidence needed before any table:**
   1. ADR-0005 accepted (it is "proposed, leaning to B"; needs bridge task 0004's idle-power numbers: the owner measured 30–50 W idle at 2560×1440@240 on Linux, to be verified).
   2. What the firmware already provides on the dGPU's slot: whether it has `_PR0`/`_PS3`/a power resource, or only `_PS0`/`_PS3` stubs (decode that part of the DSDT; SSDT `CPMCMN` / `CPMDFIG2` family also carry AMD CPM code to read).
@@ -28,7 +28,7 @@ Rule (issue #1): **no table is added without evidence.** Each item lists the evi
 ## 3. Mac devices: `SSDT-SBUS-B650EI` and friends (one table per device, only if needed)
 
 - **Purpose:** devices that a real Mac exposes and that macOS drivers or `AppleSMC`-adjacent code look for: `SBUS`/`BUS0` with `DVL0` (SMBus, so `AppleSMBusController` attaches), `MCHC` (host bridge), `PMCR`, a `DMAC`/`PIC`/`TIMR`/`RTC` compat set, `ALS0`, `FWHD`.
-- **Leads:** the FCH SMBus is `_ADR 0x00140000` under `\_SB.PCI0` (`Name (SMB0, 0x0B00)` at the root; its controller device is unnamed in the disassembly); the HPET table exists but `PNP0103` handling is not yet checked.
+- **Leads:** the FCH SMBus is `_ADR 0x00140000` under `\_SB.PCI0` (`Name (SMB0, 0x0B00)` at the root; `_ADR 0x00140000` is `\_SB.PCI0.D032`); the HPET table exists but `PNP0103` handling is not yet checked.
 - **Evidence needed per device:** (a) the exact macOS consumer (class, matching property) from REA of the 25G241 binaries; (b) a real symptom today (log line, missing ioreg node, failing feature); (c) the DSDT evidence that the device is absent or wrong; (d) the Darwin-only `_STA` scoping. Candidates are rejected if no symptom exists. Several Intel-era entries from Dortania's lists (e.g. `PMCR`, `MCHC`, `DMAC`) are for Intel PCHs and are **not** assumed to apply to AMD.
 - **Blocked by:** nothing technical, but each needs an owner-visible symptom first.
 

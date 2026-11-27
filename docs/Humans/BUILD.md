@@ -6,8 +6,8 @@ All tables are built with **iasl 20260930** (ACPICA release tag `20260930`). `to
 
 Two ways to get it; both come from the same source:
 
-1. **MacPorts** (what the owner's Mac uses): `sudo port install acpica @20260930`. The port builds `https://github.com/acpica/acpica/archive/refs/tags/20260930.tar.gz`, sha256 `feddab0f42f1e01afa3b8ec04f3aaef5e61e891225b8dc8776953ca9f3df1449`.
-2. **From source, anywhere** (what CI does): `tools/install-iasl.sh` downloads that tarball, checks the sha256, builds `iasl` and puts it at `build/iasl/bin/iasl`. It needs `curl`, `make`, a C compiler, GNU bison ≥ 3, flex and GNU m4 (`gm4`). On macOS: `port install bison flex m4` or `brew install bison flex m4`, with bison's `bin` first on `PATH` (Apple's bison is 2.3).
+1. **MacPorts** (what the owner's Mac uses): `sudo port install acpica @20260930` (works while the ports tree still carries that version; otherwise use the source build). The port builds `https://github.com/acpica/acpica/archive/refs/tags/20260930.tar.gz`, sha256 `feddab0f42f1e01afa3b8ec04f3aaef5e61e891225b8dc8776953ca9f3df1449`.
+2. **From source, anywhere** (what CI does): `tools/install-iasl.sh` downloads that tarball, checks the sha256, builds `iasl` and puts it at `build/iasl/bin/iasl`. It needs `curl`, `make`, a C compiler, GNU bison ≥ 3, flex and GNU m4 (`gm4`). On macOS: `port install bison m4` or `brew install bison m4` (Apple's flex is fine), with bison's `bin` first on `PATH` (Apple's bison is 2.3).
 
 The two builds produce byte-identical tables for both SSDTs (checked 2026-11-27: the MacPorts `iasl` and the source-built one, same output files).
 

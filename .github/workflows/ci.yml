@@ -32,7 +32,7 @@ jobs:
           key: iasl-20260930-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/install-iasl.sh') }}
       - name: Build tools (bison 3, flex, GNU m4)
         run: |
-          [ -x build/iasl/bin/iasl ] || brew install bison flex m4
+          [ -x build/iasl/bin/iasl ] || brew install bison m4
           echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
           echo "$(brew --prefix m4)/bin" >> "$GITHUB_PATH"
       - name: Build and test (when the repo has a build)

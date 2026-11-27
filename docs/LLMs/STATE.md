@@ -13,7 +13,7 @@ Research → first import. Issue #1 in review.
 - Justification per table, firmware evidence (BIOS 4005), backlog list.
 
 ## In flight
-PR for #1 (draft → independent review by claude-fable-5-2 → ready). `v0.1.0` is cut after merge.
+PR #2 for #1: independent review by claude-fable-5-2 done (APPROVE, 17 findings, all addressed except the two noted in the PR); marked ready once CI is green on the fix commit. `v0.1.0` is cut after merge.
 
 ## Next step
 1. Merge, then `v0.1.0` with the two `.aml` and `SHA256SUMS` (release-manager).

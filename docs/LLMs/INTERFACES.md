@@ -16,10 +16,10 @@ Each release carries `SHA256SUMS`. Ryzentosh-EFI pins those hashes (`EFI/BINARIE
 | Object | Provided by | Consumer |
 |---|---|---|
 | `\_SB.PR00`..`PR17` `Processor ()`, ProcessorId = MADT IDs | SSDT-CPUR | `AppleACPIPlatform` / `AppleACPICPU` |
-| `\_SB.PCI0.SBRG.EC` (`ACID0001`), `EC0` hidden | SSDT-EC-USBX | macOS USB power properties; `AppleACPIEC` must not bind `EC0` |
+| `\_SB.PCI0.SBRG.EC` (`ACID0001`), `EC0` hidden | SSDT-EC-USBX | macOS EC lookup (Dortania: `AppleBusPowerController`; consumer unconfirmed); `AppleACPIEC` (matches `PNP0C09`) must not bind `EC0` |
 | `\_SB.USBX` `_DSM` (5100 / 2100 mA) | SSDT-EC-USBX | `AppleUSBHost*` |
 
-Under any other OS none of these objects is visible and `EC0` keeps its default status.
+Expected under any other OS (untested): none of these objects is visible and `EC0` keeps its default status.
 
 ## Consumed
 

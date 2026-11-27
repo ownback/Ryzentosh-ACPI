@@ -26,13 +26,13 @@ So the table adds one `Processor ()` per **enabled** MADT entry:
 
 - `ProcessorId` = the MADT's ACPI Processor ID, in MADT order (`PR00`..`PR0B` = `0x00`..`0x16` even, `PR0C`..`PR17` = `0x01`..`0x17` odd).
 - None for the 8 disabled entries: phantom CPUs make macOS stall too (Vermilion finding, 2026-11-19).
-- `PblkAddress = 0x00000810`, `PblkLength = 6`, identical for all 24. **Open:** nothing in the firmware tables defines or consumes this block (the FADT has PM1a at `0x800`, no P_BLK), and the value's origin in the Vermilion work isn't recorded. It is kept unchanged because the table boots. A follow-up should confirm from Apple's `AppleACPIPlatform` that AMD ignores it (REA), then decide whether `0` is cleaner. That would be a byte change to a booting table and needs its own boot test.
+- `PblkAddress = 0x00000810`, `PblkLength = 6`, identical for all 24. **Open:** nothing in the firmware tables defines or consumes this block (the FADT has no P_BLK field by design, and `0x810` appears as a constant in none of the 16 AML tables). The value is reportedly the one Dortania's SSDT-CPUR uses on every entry (reviewer's recollection, not rechecked here), which would explain it. It is kept unchanged because the table boots. A follow-up should confirm from Apple's `AppleACPIPlatform` that AMD ignores it (REA), then decide whether `0` is cleaner. That would be a byte change to a booting table and needs its own boot test.
 
 Live evidence (ioreg `IOACPIPlane`, booted from the internal ESP with OpenCore 1.0.8, 2026-11-27): 24 `PRxx` `IOACPIPlatformDevice` nodes (`PR00@0` … `PR17@1B`), 24 `AppleACPICPU` instances, `machdep.cpu.thread_count` 24.
 
 ## Darwin-only `_STA`
 
-Every `PRxx` has `_STA`: `Return (0x0F)` when `_OSI ("Darwin")` is true, otherwise `Return (Zero)`. Linux (Omarchy on the same machine) and any other OS therefore see no processor objects at all and keep using the `ACPI0007` devices. The DSDT never answers `_OSI ("Darwin")` itself (it handles Windows and `_OS` strings only), so this check is true only under macOS with OpenCore's default `_OSI` behaviour.
+Every `PRxx` has `_STA`: `Return (0x0F)` when `_OSI ("Darwin")` is true, otherwise `Return (Zero)`. Another OS is therefore expected to see no processor objects and keep using the `ACPI0007` devices (untested; see below). What decides this is how the booted OS answers `_OSI ("Darwin")`, not the DSDT's contents (the DSDT only tests `Windows …` strings and `_OS`). macOS answers true; Linux's `_OSI` answers are expected to be false for "Darwin" (its interface list has no such string), but that is **not verified** here, nor is whether the Linux boot goes through OpenCore at all.
 
 ## Limits
 
@@ -43,4 +43,5 @@ Every `PRxx` has `_STA`: `Return (0x0F)` when `_OSI ("Darwin")` is true, otherwi
 
 1. Host: `tools/ci.sh` (rebuild equals the committed bytes, ignoring the checksum and compiler revision).
 2. Device, after the Orchestrator stages a candidate that contains the table: `ioreg -p IOACPIPlane -w0 | grep -cE '\+-o PR[0-9A-F]{2}@'` prints 24; `sysctl machdep.cpu.thread_count` prints 24; the boot reaches the login window.
-3. Removing the table must reproduce the stall (not retested here: it needs a candidate boot and is the Orchestrator's call).
+3. Linux (Omarchy, bridge task, not run here): the 24 `ACPI0007` CPUs are present and `dmesg` shows no duplicate-processor-ID complaints (the `PRxx` IDs 0–23 equal the `ACPI0007` `_UID`s; whether Linux could confuse them is unchecked).
+4. Removing the table must reproduce the stall (not retested here: it needs a candidate boot and is the Orchestrator's call).
