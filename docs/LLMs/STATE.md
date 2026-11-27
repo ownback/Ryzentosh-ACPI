@@ -3,22 +3,21 @@
 Updated: 2026-11-27 by the Project Lead for issue #1 (claude-sonnet-5-5 / high).
 
 ## Phase
-Research → first import. Issue #1 in review.
+Research. First release `v0.1.0` published (pre-release).
 
 ## Done
-- Two live SSDTs imported byte-identical from Ryzentosh-EFI `main` @ 7bd8f7b: `src/*.dsl`, `aml/*.aml`, `aml/SHA256SUMS`.
-- `.aml` sha256 equal across Ryzentosh-EFI `main`, the USB known-good and the control plane's backups of the internal `EFI/OC` (`da5bf6ea…2db4` CPUR, `f651e3f7…2d96` EC-USBX).
-- Rebuild with iasl 20260930 (MacPorts and from-source builds identical) differs from the live bytes only at offsets 9 and 32–35 (live compiled with 20251212).
-- `tools/ci.sh` + CI workflow (iasl built from the sha256-pinned tarball, cached).
-- Justification per table, firmware evidence (BIOS 4005), backlog list.
+- Issue #1 closed: #2 squash-merged (3a32487), release [v0.1.0](https://github.com/ownback/Ryzentosh-ACPI/releases/tag/v0.1.0) with `SSDT-CPUR-B650EI.aml`, `SSDT-EC-USBX-B650EI.aml` and `SHA256SUMS`.
+- `.aml` sha256 identical to Ryzentosh-EFI `main`, the USB known-good and the live internal ESP (Orchestrator, 2026-11-27): CPUR `da5bf6ea…2db4`, EC-USBX `f651e3f7…2d96`.
+- Reproducible build (iasl 20260930, sha256-pinned tarball), CI rebuild-vs-committed check plus tamper tests, per-table justification, firmware evidence (BIOS 4005), backlog of candidate tables (`docs/LLMs/BACKLOG.md`, none written).
+- Owner/Orchestrator decision: EC hide + `EC` + `USBX` stay in one table.
 
 ## In flight
-PR #2 for #1: independent review by claude-fable-5-2 done (APPROVE, 17 findings, all addressed except the two noted in the PR); marked ready once CI is green on the fix commit. `v0.1.0` is cut after merge.
+Nothing.
 
 ## Next step
-1. Merge, then `v0.1.0` with the two `.aml` and `SHA256SUMS` (release-manager).
-2. Orchestrator schedules the Ryzentosh-EFI PR that switches its provenance to this repo.
-3. Open follow-ups: confirm `PblkAddress 0x810` and the fake-`EC` need from Apple's binaries (REA); Linux-side check of the Darwin gate (bridge task).
+- Orchestrator: Ryzentosh-EFI PR that switches its provenance to this repo (release `v0.1.0`).
+- Follow-up issues: #3 `PblkAddress 0x810` origin, #4 consumer of the fake `EC`, #5 Linux check of the Darwin-only gate (bridge task, Orchestrator schedules).
+- New tables only with evidence (BACKLOG.md): sleep/wake `_PRW`, dGPU power-down (after ADR-0005), Mac devices (SBUS).
 
 ## Blockers
 None.
