@@ -1,8 +1,8 @@
 # BACKLOG: tables that may be added (none exist yet)
 
-Rule (issue #1): **no table is added without evidence.** Each item lists the evidence that would justify it. Leads below are facts found in the BIOS 4005 DSDT (see `re/firmware-tables-bios4005.md`) or in the control plane; they justify an investigation, not a table. One SSDT per purpose (owner decision).
+Target EFI tree and planned table names: [EFI-END-STATE.md](https://github.com/ownback/Ryzentosh/blob/main/docs/Architecture/EFI-END-STATE.md). Rule (issue #1): **no table is added without evidence.** Each item lists the evidence that would justify it. Leads below are facts found in the BIOS 4005 DSDT (see `re/firmware-tables-bios4005.md`) or in the control plane; they justify an investigation, not a table. One SSDT per purpose (owner decision).
 
-## 1. Sleep/wake sources: `SSDT-PRW-B650EI` (name provisional)
+## 1. Sleep/wake sources: `SSDT-SLEEP-B650EI` (name from EFI-END-STATE.md, provisional)
 
 - **Purpose:** make macOS wake from the right devices and not from the wrong ones (the real-Mac wake-source set is **to be established from Apple's code** (item 3); `GPRW`/`UPRW` are PC-firmware/Dortania names, not Apple's).
 - **Lead:** the DSDT has 74 `_PRW` objects (73 `Name`, 1 `Method`), for example under `GPP3`/`D003`; the full per-device list is not inventoried yet (that is evidence item 0).
@@ -14,14 +14,14 @@ Rule (issue #1): **no table is added without evidence.** Each item lists the evi
   4. The Linux ground truth: `/proc/acpi/wakeup` on Omarchy (bridge task).
 - **Blocked by:** the sleep/wake test row in the control plane's COMPATIBILITY_MATRIX; Ryzentosh-PLATFORM owns sleep behaviour, so the Lead there must ask for it.
 
-## 2. dGPU power-down: `SSDT-GPU-B650EI` (name provisional)
+## 2. dGPU power-down: `SSDT-GPU-PM-B650EI` (name from EFI-END-STATE.md, provisional)
 
 - **Purpose:** ADR-0005 option B/GPU M1.5: put the RX 7900 XTX into D3 / power it off when headless, with the AML power-resource methods a real Mac with a discrete GPU has (`_PS0`/`_PS3`, `_ON`/`_OFF` on a `PowerResource`, `_PR0`).
 - **Leads:** the dGPU's firmware path is **not yet identified** (it sits behind a `GPPx` root port; match it against `lspci` from bridge task 0001). Note `\_SB.PCI0.GP17` (`_ADR 0x00080001`, child `VGA`) is the Raphael iGPU's bridge (the iGPU is disabled in the BIOS today), not the dGPU. The 13 `_PS0`/`_PS3` pairs in the DSDT belong to the FCH UARTs (`FUR0`–`FUR4`) and I2C/I3C controllers (`I2CA`–`I2CD`, `I3CA`–`I3CD`), so they are not dGPU leads.
 - **Evidence needed before any table:**
   1. ADR-0005 accepted (it is "proposed, leaning to B"; needs bridge task 0004's idle-power numbers: the owner measured 30–50 W idle at 2560×1440@240 on Linux, to be verified).
   2. What the firmware already provides on the dGPU's slot: whether it has `_PR0`/`_PS3`/a power resource, or only `_PS0`/`_PS3` stubs (decode that part of the DSDT; SSDT `CPMCMN` / `CPMDFIG2` family also carry AMD CPM code to read).
-  3. What the macOS consumer expects (`IOPCIDevice` PM, the AMD driver's runtime-suspend path): from the Ryzentosh-dGPU/GPU Lead's RE, never copied.
+  3. What the macOS consumer expects (`IOPCIDevice` PM, the AMD driver's runtime-suspend path): from the Ryzentosh-GPU Lead's RE (dGPU + iGPU in one repo), never copied.
   4. A hardware test plan that cannot lose the display: the board's iGPU output must be proven first (RB-0005b).
 - **Blocked by:** ADR-0005, Ryzentosh-GPU design. No table before that.
 
