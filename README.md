@@ -1,6 +1,6 @@
 # Ryzentosh-ACPI
 
-ACPI tables for the ASUS ROG STRIX B650E-I, one SSDT per purpose (CPU objects, EC + USBX, sleep/wake sources, GPU power-down, Mac devices such as SBUS), with .dsl sources, iasl builds and per-table justification.
+The home of **every SSDT that Ryzentosh-EFI loads** for the ASUS ROG STRIX B650E-I, one SSDT per purpose, with .dsl sources, iasl builds and per-table justification. Live today: CPU objects (`SSDT-CPUR-B650EI`) and EC + USBX (`SSDT-EC-USBX-B650EI`). Planned, each only with evidence that macOS needs it: sleep/wake sources (`SSDT-SLEEP-B650EI`), dGPU power-down (`SSDT-GPU-PM-B650EI`), SMBus as on a Mac (`SSDT-SBUS-B650EI`). The target EFI tree is in the control plane's [EFI-END-STATE.md](https://github.com/ownback/Ryzentosh/blob/main/docs/Architecture/EFI-END-STATE.md).
 
 Part of [Ryzentosh](https://github.com/ownback/Ryzentosh): macOS Tahoe on an AMD PC, built to behave like a Mac Apple designed and
 supports. Written by AI agents. Apple is not involved in this project.

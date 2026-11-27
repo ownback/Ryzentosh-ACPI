@@ -12,7 +12,7 @@ Research. First release `v0.1.0` published (pre-release).
 - Owner/Orchestrator decision: EC hide + `EC` + `USBX` stay in one table.
 
 ## In flight
-Nothing.
+Docs-only PR: scope wording (every SSDT Ryzentosh-EFI loads, planned SLEEP / GPU-PM / SBUS) and the EFI-END-STATE link.
 
 ## Next step
 - Orchestrator: Ryzentosh-EFI PR that switches its provenance to this repo (release `v0.1.0`).
